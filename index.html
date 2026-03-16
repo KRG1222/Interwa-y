@@ -35,7 +35,7 @@ button:active { opacity: 0.7; }
 .time-big { font-size: 72px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
 .round-info { font-size: 13px; color: #888; margin-top: 8px; }
 .progress-bar { height: 8px; background: #e8e8e8; border-radius: 99px; overflow: hidden; margin: 12px 0; }
-.progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s linear; }
+.progress-fill { height: 100%; border-radius: 99px; }
 .fill-walk { background: #1D9E75; }
 .fill-run { background: #D85A30; }
 .controls { display: flex; gap: 10px; justify-content: center; margin-top: 1rem; }
@@ -56,7 +56,7 @@ button:active { opacity: 0.7; }
 .music-label { font-size: 13px; color: #888; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bg-hint { background: #FFF8E7; border: 0.5px solid rgba(186,117,23,0.3); border-radius: 12px; padding: 10px 14px; font-size: 12px; color: #854F0B; line-height: 1.6; margin-bottom: 1rem; }
 .bg-hint strong { color: #633806; }
-.ios-hint { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 14px 16px; font-size: 12px; color: #888; line-height: 1.7; margin-top: 0.5rem; }
+.ios-hint { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 14px 16px; font-size: 12px; color: #888; line-height: 1.7; }
 .ios-hint strong { color: #1a1a1a; font-weight: 600; }
 .ios-hint .step { display: flex; gap: 8px; margin-top: 6px; }
 .ios-hint .step-num { background: #1a1a1a; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
@@ -70,8 +70,8 @@ button:active { opacity: 0.7; }
   </div>
 
   <div class="bg-hint">
-    <strong>Dźwięki przy zablokowanym ekranie:</strong><br>
-    Po kliknięciu Start odczekaj ~3 sekundy zanim zablokujesz ekran. Potem możesz blokować swobodnie — dźwięki będą nadal działać przez słuchawki.
+    <strong>Jak używać przy zablokowanym ekranie:</strong><br>
+    Wgraj własne nagrania MP3 — działają niezawodnie przez cały trening w tle. TTS (synteza mowy) działa gdy ekran jest aktywny; przy zablokowaniu lepiej sprawdzają się nagrania.
   </div>
 
   <div class="card">
@@ -97,28 +97,28 @@ button:active { opacity: 0.7; }
     <div class="card-title">Mowa (TTS po polsku)</div>
     <div class="announce-toggle">
       <input type="checkbox" id="tts-enabled" checked>
-      <label for="tts-enabled">Włącz komunikaty głosowe</label>
+      <label for="tts-enabled">Włącz syntezę mowy (działa przy aktywnym ekranie)</label>
     </div>
     <select id="voice-select"><option>Ładowanie głosów...</option></select>
     <div class="tts-test-row" style="margin-bottom:12px;">
       <input type="text" id="tts-test-text" value="Zacznij biegać!" style="margin-bottom:0;">
       <button onclick="testTTS()">Przetestuj</button>
     </div>
-    <div class="section-sub">Własne komunikaty (opcjonalne):</div>
-    <input type="text" id="msg-walk" placeholder='Np. "Spokojnie, chodź"'>
-    <input type="text" id="msg-run" placeholder='Np. "Biegnij!"'>
-    <input type="text" id="msg-warn" placeholder='Np. "Jeszcze 5 sekund!"' style="margin-bottom:0;">
+    <div class="section-sub">Własne komunikaty TTS (opcjonalne):</div>
+    <input type="text" id="msg-walk" placeholder='Komunikat na chodzenie (domyślnie: "Zacznij chodzić")'>
+    <input type="text" id="msg-run" placeholder='Komunikat na bieganie (domyślnie: "Zacznij biegać")'>
+    <input type="text" id="msg-warn" placeholder='Ostrzeżenie 5s (domyślnie: "Jeszcze pięć sekund")' style="margin-bottom:0;">
   </div>
 
   <div class="card">
-    <div class="card-title">Własne nagrania głosowe</div>
-    <div class="section-sub">Wgraj pliki MP3/WAV dla konkretnych faz:</div>
+    <div class="card-title">Własne nagrania głosowe (zalecane)</div>
+    <div class="section-sub">MP3/WAV — działają niezawodnie nawet przy zablokowanym ekranie:</div>
     <div class="upload-list" id="upload-list"></div>
     <div style="display:flex; gap:6px;">
       <select id="upload-type" style="flex:1; margin-bottom:0;">
         <option value="walk">Na chodzenie</option>
         <option value="run">Na bieganie</option>
-        <option value="warn">Ostrzeżenie (5s)</option>
+        <option value="warn">Ostrzeżenie (5s przed zmianą)</option>
       </select>
       <button onclick="document.getElementById('file-input').click()">Dodaj plik</button>
     </div>
@@ -163,63 +163,192 @@ button:active { opacity: 0.7; }
 <audio id="music-player" loop></audio>
 
 <script>
-let walkTime=60, runTime=30, totalRounds=8;
-let currentRound=0;
-let voices=[];
-let audioFiles={walk:null,run:null,warn:null};
-let audioBuffers={walk:null,run:null,warn:null};
-let actx=null, silentSource=null;
-let scheduledIds=[];
-let workoutStartTime=0;
-let pausedAt=0;
-let isRunning=false, isPaused=false;
-let timeline=[];
-let rafId=null;
+// ─── Config ───────────────────────────────────────────────────────────────────
+let walkTime = 60, runTime = 30, totalRounds = 8;
+let voices = [];
+let audioBuffers = { walk: null, run: null, warn: null };
+let audioFiles = { walk: null, run: null, warn: null };
 
-const $=id=>document.getElementById(id);
-const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+// ─── AudioContext ─────────────────────────────────────────────────────────────
+let actx = null;
+let keepAliveNode = null;
 
-function getCtx(){
-  if(!actx) actx=new(window.AudioContext||window.webkitAudioContext)();
-  if(actx.state==='suspended') actx.resume();
+function getCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
   return actx;
 }
 
-function startKeepAlive(){
-  if(silentSource) return;
-  const ctx=getCtx();
-  const osc=ctx.createOscillator();
-  const g=ctx.createGain(); g.gain.value=0.00001;
-  osc.connect(g); g.connect(ctx.destination); osc.start();
-  silentSource=osc;
+// Silent oscillator keeps iOS audio session alive indefinitely
+function startKeepAlive() {
+  if (keepAliveNode) return;
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  g.gain.value = 0.00001;
+  osc.connect(g);
+  g.connect(ctx.destination);
+  osc.start();
+  keepAliveNode = osc;
 }
 
-function stopKeepAlive(){
-  if(silentSource){try{silentSource.stop();}catch(e){} silentSource=null;}
+function stopKeepAlive() {
+  if (keepAliveNode) { try { keepAliveNode.stop(); } catch(e){} keepAliveNode = null; }
 }
 
-async function loadBuffer(url){
-  const ctx=getCtx();
-  const res=await fetch(url);
-  const arr=await res.arrayBuffer();
-  return await ctx.decodeAudioData(arr);
+// ─── Workout state ────────────────────────────────────────────────────────────
+let isRunning = false;
+let isPaused = false;
+let workoutStartCtxTime = 0;   // actx.currentTime at workout start
+let pauseStartCtxTime = 0;     // actx.currentTime when paused
+let totalPausedSecs = 0;       // total seconds paused
+let scheduledBeeps = [];       // AudioBufferSourceNodes scheduled ahead
+let rafId = null;
+
+// Full pre-built event timeline [{t, type, round}]
+// t = seconds from workout start
+let eventTimeline = [];
+let totalDuration = 0;
+
+// ─── Build full timeline upfront ─────────────────────────────────────────────
+function buildTimeline() {
+  eventTimeline = [];
+  let t = 0;
+  for (let r = 1; r <= totalRounds; r++) {
+    eventTimeline.push({ t, type: 'walk', round: r });
+    if (walkTime > 5) eventTimeline.push({ t: t + walkTime - 5, type: 'warn' });
+    t += walkTime;
+    eventTimeline.push({ t, type: 'run', round: r });
+    if (runTime > 5) eventTimeline.push({ t: t + runTime - 5, type: 'warn' });
+    t += runTime;
+  }
+  eventTimeline.push({ t, type: 'end' });
+  totalDuration = t;
 }
 
-async function addAudioFile(input){
-  const file=input.files[0]; if(!file)return;
-  const type=$('upload-type').value;
-  const url=URL.createObjectURL(file);
-  audioFiles[type]=url;
-  try{audioBuffers[type]=await loadBuffer(url);}catch(e){console.warn(e);}
-  renderUploadList(); input.value='';
+// ─── Schedule ALL audio events via AudioContext.currentTime ──────────────────
+// This is the key: every beep/sound is scheduled as an AudioBufferSource
+// with an exact `when` time. AudioContext scheduling survives iOS lock screen.
+function scheduleAllAudio() {
+  // Cancel previously scheduled
+  scheduledBeeps.forEach(s => { try { s.stop(); } catch(e){} });
+  scheduledBeeps = [];
+
+  const ctx = getCtx();
+
+  eventTimeline.forEach(ev => {
+    const when = workoutStartCtxTime + ev.t;
+    if (when < ctx.currentTime + 0.05) return; // already past
+
+    const buf = audioBuffers[ev.type === 'warn' ? 'warn' : ev.type === 'walk' ? 'walk' : 'run'];
+    if (!buf) return; // no audio file for this event — TTS will handle it via rAF
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(when);
+    scheduledBeeps.push(src);
+  });
 }
 
-function removeAudio(type){audioFiles[type]=null;audioBuffers[type]=null;renderUploadList();}
+// ─── requestAnimationFrame ticker (display + TTS while screen is on) ─────────
+function startTicker() {
+  cancelAnimationFrame(rafId);
+  let lastAnnounced = {};
 
-function renderUploadList(){
-  const labels={walk:'Chodzenie',run:'Bieganie',warn:'Ostrzeżenie'};
-  const cls={walk:'type-walk',run:'type-run',warn:'type-warn'};
-  $('upload-list').innerHTML=Object.entries(audioFiles).filter(([,v])=>v).map(([t])=>`
+  function tick() {
+    if (!isRunning || isPaused) return;
+    const ctx = getCtx();
+    const elapsed = ctx.currentTime - workoutStartCtxTime;
+
+    if (elapsed >= totalDuration) { endWorkout(); return; }
+
+    // Find current phase
+    let t = 0;
+    for (let r = 1; r <= totalRounds; r++) {
+      if (elapsed >= t && elapsed < t + walkTime) {
+        const tl = Math.ceil(walkTime - (elapsed - t));
+        showDisplay('walk', tl, walkTime, r);
+        maybeTTS('walk_' + r, 'walk', elapsed - t < 0.8);
+        if (walkTime > 5) maybeTTS('warn_walk_' + r, 'warn', Math.abs((elapsed - t) - (walkTime - 5)) < 0.8);
+        break;
+      }
+      t += walkTime;
+      if (elapsed >= t && elapsed < t + runTime) {
+        const tl = Math.ceil(runTime - (elapsed - t));
+        showDisplay('run', tl, runTime, r);
+        maybeTTS('run_' + r, 'run', elapsed - t < 0.8);
+        if (runTime > 5) maybeTTS('warn_run_' + r, 'warn', Math.abs((elapsed - t) - (runTime - 5)) < 0.8);
+        break;
+      }
+      t += runTime;
+    }
+
+    rafId = requestAnimationFrame(tick);
+
+    function maybeTTS(key, type, condition) {
+      if (!condition || lastAnnounced[key] || audioBuffers[type]) return;
+      lastAnnounced[key] = true;
+      announceTTS(type);
+    }
+  }
+
+  rafId = requestAnimationFrame(tick);
+}
+
+function showDisplay(phase, tl, total, round) {
+  $('time-display').textContent = fmt(tl);
+  $('progress-fill').style.width = (Math.max(0, tl / total) * 100) + '%';
+  $('progress-fill').className = 'progress-fill ' + (phase === 'walk' ? 'fill-walk' : 'fill-run');
+  $('round-info').textContent = 'Runda ' + round + ' / ' + totalRounds;
+  const lbl = $('phase-label');
+  if (phase === 'walk') { lbl.className = 'phase-label phase-walk'; lbl.textContent = 'CHODZENIE'; }
+  else { lbl.className = 'phase-label phase-run'; lbl.textContent = 'BIEGANIE'; }
+}
+
+// ─── TTS (screen-on only) ─────────────────────────────────────────────────────
+function speak(text) {
+  if (!$('tts-enabled').checked) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'pl-PL';
+  const idx = parseInt($('voice-select').value);
+  if (voices[idx]) u.voice = voices[idx];
+  window.speechSynthesis.speak(u);
+}
+
+function announceTTS(type) {
+  if (type === 'walk') speak($('msg-walk').value || 'Zacznij chodzić');
+  else if (type === 'run') speak($('msg-run').value || 'Zacznij biegać');
+  else if (type === 'warn') speak($('msg-warn').value || 'Jeszcze pięć sekund');
+}
+
+function testTTS() { speak($('tts-test-text').value || 'Zacznij biegać!'); }
+
+// ─── Audio file loading ───────────────────────────────────────────────────────
+async function loadBuffer(url) {
+  const ctx = getCtx();
+  const res = await fetch(url);
+  const arr = await res.arrayBuffer();
+  return ctx.decodeAudioData(arr);
+}
+
+async function addAudioFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const type = $('upload-type').value;
+  const url = URL.createObjectURL(file);
+  audioFiles[type] = url;
+  try { audioBuffers[type] = await loadBuffer(url); } catch(e) { console.warn(e); }
+  renderUploadList();
+  input.value = '';
+}
+
+function removeAudio(type) { audioFiles[type] = null; audioBuffers[type] = null; renderUploadList(); }
+
+function renderUploadList() {
+  const labels = { walk: 'Chodzenie', run: 'Bieganie', warn: 'Ostrzeżenie' };
+  const cls = { walk: 'type-walk', run: 'type-run', warn: 'type-warn' };
+  $('upload-list').innerHTML = Object.entries(audioFiles).filter(([,v]) => v).map(([t]) => `
     <div class="upload-item">
       <span class="upload-type ${cls[t]}">${labels[t]}</span>
       <span style="color:#888;font-size:12px;">Wgrano</span>
@@ -227,218 +356,121 @@ function renderUploadList(){
     </div>`).join('');
 }
 
-function buildTimeline(){
-  timeline=[];
-  let t=0;
-  for(let r=1;r<=totalRounds;r++){
-    timeline.push({time:t,type:'walk',round:r});
-    timeline.push({time:t+walkTime-5,type:'warn'});
-    t+=walkTime;
-    timeline.push({time:t,type:'run',round:r});
-    timeline.push({time:t+runTime-5,type:'warn'});
-    t+=runTime;
-  }
-  timeline.push({time:t,type:'end'});
-  return t;
-}
-
-function scheduleAll(){
-  cancelAll();
-  const ctx=getCtx();
-  const now=ctx.currentTime;
-  timeline.forEach(ev=>{
-    const when=workoutStartTime+ev.time;
-    if(when<=now) return;
-    const delay=(when-now)*1000;
-    const id=setTimeout(()=>handleEvent(ev),delay);
-    scheduledIds.push(id);
-  });
-}
-
-function cancelAll(){
-  scheduledIds.forEach(id=>clearTimeout(id));
-  scheduledIds=[];
-}
-
-function handleEvent(ev){
-  if(!isRunning||isPaused) return;
-  if(ev.type==='walk'){currentRound=ev.round; setPhase('walk'); announce('walk');}
-  else if(ev.type==='run'){setPhase('run'); announce('run');}
-  else if(ev.type==='warn'){announce('warn');}
-  else if(ev.type==='end'){endWorkout();}
-}
-
-function startTicker(){
-  cancelAnimationFrame(rafId);
-  function tick(){
-    if(!isRunning||isPaused){return;}
-    const ctx=getCtx();
-    const elapsed=ctx.currentTime-workoutStartTime;
-    let t=0;
-    let found=false;
-    for(let r=1;r<=totalRounds;r++){
-      if(elapsed>=t&&elapsed<t+walkTime){
-        const tl=Math.max(0,Math.ceil(walkTime-(elapsed-t)));
-        updateDisplay('walk',tl,walkTime,r);
-        found=true; break;
-      }
-      t+=walkTime;
-      if(elapsed>=t&&elapsed<t+runTime){
-        const tl=Math.max(0,Math.ceil(runTime-(elapsed-t)));
-        updateDisplay('run',tl,runTime,r);
-        found=true; break;
-      }
-      t+=runTime;
-    }
-    if(found) rafId=requestAnimationFrame(tick);
-  }
-  rafId=requestAnimationFrame(tick);
-}
-
-function updateDisplay(phase,tl,total,round){
-  $('time-display').textContent=fmt(tl);
-  $('progress-fill').style.width=(tl/total*100)+'%';
-  $('progress-fill').className='progress-fill '+(phase==='walk'?'fill-walk':'fill-run');
-  $('round-info').textContent='Runda '+round+' / '+totalRounds;
-}
-
-function speak(text){
-  if(!$('tts-enabled').checked)return;
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang='pl-PL';
-  const idx=+$('voice-select').value;
-  if(voices[idx])u.voice=voices[idx];
-  window.speechSynthesis.speak(u);
-}
-
-function playBuffer(type){
-  if(!audioBuffers[type])return false;
-  const ctx=getCtx();
-  const src=ctx.createBufferSource();
-  src.buffer=audioBuffers[type];
-  src.connect(ctx.destination);
-  src.start();
-  return true;
-}
-
-function announce(type){
-  if(type==='walk'){if(!playBuffer('walk'))speak($('msg-walk').value||'Zacznij chodzić');}
-  else if(type==='run'){if(!playBuffer('run'))speak($('msg-run').value||'Zacznij biegać');}
-  else if(type==='warn'){if(!playBuffer('warn'))speak($('msg-warn').value||'Jeszcze pięć sekund');}
-}
-
-function testTTS(){speak($('tts-test-text').value||'Zacznij biegać!');}
-
-function setPhase(phase){
-  const lbl=$('phase-label');
-  if(phase==='walk'){lbl.className='phase-label phase-walk';lbl.textContent='CHODZENIE';}
-  else if(phase==='run'){lbl.className='phase-label phase-run';lbl.textContent='BIEGANIE';}
-  else{lbl.className='phase-label phase-ready';lbl.textContent=phase;}
-}
-
-function startWorkout(){
-  const ctx=getCtx();
+// ─── Workout control ──────────────────────────────────────────────────────────
+function startWorkout() {
+  const ctx = getCtx();
   startKeepAlive();
-  isRunning=true; isPaused=false;
-  workoutStartTime=ctx.currentTime;
   buildTimeline();
-  scheduleAll();
+  isRunning = true;
+  isPaused = false;
+  totalPausedSecs = 0;
+  workoutStartCtxTime = ctx.currentTime + 0.1; // tiny delay so first event fires correctly
+  scheduleAllAudio(); // pre-schedule EVERYTHING upfront
   startTicker();
-  setPhase('walk');
-  currentRound=1;
-  $('round-info').textContent='Runda 1 / '+totalRounds;
-  announce('walk');
-  const mp=$('music-player');
-  if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
-  $('btn-start').textContent='Pauza';
-  $('btn-start').className='btn-main btn-stop';
-  $('btn-start').onclick=pauseWorkout;
+  // Play music
+  const mp = $('music-player');
+  if (mp.src && mp.src !== window.location.href) mp.play().catch(() => {});
+  // First announcement via TTS immediately
+  announceTTS('walk');
+  $('btn-start').textContent = 'Pauza';
+  $('btn-start').className = 'btn-main btn-stop';
+  $('btn-start').onclick = pauseWorkout;
 }
 
-function pauseWorkout(){
-  if(!isRunning)return;
-  isPaused=true;
-  pausedAt=getCtx().currentTime;
-  cancelAll();
+function pauseWorkout() {
+  if (!isRunning) return;
+  isPaused = true;
+  pauseStartCtxTime = getCtx().currentTime;
+  // Cancel all scheduled audio — we'll reschedule on resume
+  scheduledBeeps.forEach(s => { try { s.stop(); } catch(e){} });
+  scheduledBeeps = [];
   cancelAnimationFrame(rafId);
   window.speechSynthesis.cancel();
   $('music-player').pause();
-  $('btn-start').textContent='Wznów';
-  $('btn-start').className='btn-main btn-start';
-  $('btn-start').onclick=resumeWorkout;
+  $('btn-start').textContent = 'Wznów';
+  $('btn-start').className = 'btn-main btn-start';
+  $('btn-start').onclick = resumeWorkout;
 }
 
-function resumeWorkout(){
-  if(!isPaused)return;
-  const ctx=getCtx();
-  const pauseDur=ctx.currentTime-pausedAt;
-  workoutStartTime+=pauseDur;
-  isPaused=false;
-  scheduleAll();
+function resumeWorkout() {
+  if (!isPaused) return;
+  const ctx = getCtx();
+  // Shift the workout start time forward by pause duration
+  const pausedFor = ctx.currentTime - pauseStartCtxTime;
+  workoutStartCtxTime += pausedFor;
+  isPaused = false;
+  scheduleAllAudio(); // reschedule remaining events
   startTicker();
-  const mp=$('music-player');
-  if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
-  $('btn-start').textContent='Pauza';
-  $('btn-start').className='btn-main btn-stop';
-  $('btn-start').onclick=pauseWorkout;
+  const mp = $('music-player');
+  if (mp.src && mp.src !== window.location.href) mp.play().catch(() => {});
+  $('btn-start').textContent = 'Pauza';
+  $('btn-start').className = 'btn-main btn-stop';
+  $('btn-start').onclick = pauseWorkout;
 }
 
-function resetWorkout(){
-  isRunning=false; isPaused=false;
-  cancelAll();
+function resetWorkout() {
+  isRunning = false; isPaused = false;
+  scheduledBeeps.forEach(s => { try { s.stop(); } catch(e){} });
+  scheduledBeeps = [];
   cancelAnimationFrame(rafId);
   stopKeepAlive();
   window.speechSynthesis.cancel();
-  const mp=$('music-player'); mp.pause(); mp.currentTime=0;
-  setPhase('GOTOWY');
-  $('time-display').textContent='00:00';
-  $('progress-fill').style.width='100%';
-  $('progress-fill').className='progress-fill fill-walk';
-  $('round-info').textContent='Runda 0 / '+totalRounds;
-  $('btn-start').textContent='Start';
-  $('btn-start').className='btn-main btn-start';
-  $('btn-start').onclick=startWorkout;
+  const mp = $('music-player'); mp.pause(); mp.currentTime = 0;
+  $('phase-label').className = 'phase-label phase-ready';
+  $('phase-label').textContent = 'GOTOWY';
+  $('time-display').textContent = '00:00';
+  $('progress-fill').style.width = '100%';
+  $('progress-fill').className = 'progress-fill fill-walk';
+  $('round-info').textContent = 'Runda 0 / ' + totalRounds;
+  $('btn-start').textContent = 'Start';
+  $('btn-start').className = 'btn-main btn-start';
+  $('btn-start').onclick = startWorkout;
 }
 
-function endWorkout(){
-  isRunning=false;
+function endWorkout() {
+  isRunning = false;
   cancelAnimationFrame(rafId);
   stopKeepAlive();
   $('music-player').pause();
-  setPhase('KONIEC!');
-  $('time-display').textContent='00:00';
-  $('progress-fill').style.width='0%';
-  $('round-info').textContent='Trening ukończony!';
+  $('phase-label').className = 'phase-label phase-ready';
+  $('phase-label').textContent = 'KONIEC!';
+  $('time-display').textContent = '00:00';
+  $('progress-fill').style.width = '0%';
+  $('round-info').textContent = 'Trening ukończony!';
   speak('Trening ukończony. Świetna robota!');
-  $('btn-start').textContent='Start';
-  $('btn-start').className='btn-main btn-start';
-  $('btn-start').onclick=startWorkout;
+  $('btn-start').textContent = 'Start';
+  $('btn-start').className = 'btn-main btn-start';
+  $('btn-start').onclick = startWorkout;
 }
 
-$('walk-time').oninput=()=>{walkTime=+$('walk-time').value;$('walk-val').textContent=walkTime+'s';};
-$('run-time').oninput=()=>{runTime=+$('run-time').value;$('run-val').textContent=runTime+'s';};
-$('rounds').oninput=()=>{totalRounds=+$('rounds').value;$('rounds-val').textContent=totalRounds;$('round-info').textContent='Runda 0 / '+totalRounds;};
-$('music-vol').oninput=()=>{let v=+$('music-vol').value;$('music-vol-val').textContent=v+'%';$('music-player').volume=v/100;};
-$('music-player').volume=0.4;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = s => String(Math.floor(Math.max(0,s)/60)).padStart(2,'0') + ':' + String(Math.max(0,s)%60).padStart(2,'0');
 
-function loadMusic(input){
-  const file=input.files[0];if(!file)return;
-  $('music-player').src=URL.createObjectURL(file);
-  $('music-label').textContent=file.name;
-  input.value='';
+$('walk-time').oninput = () => { walkTime = +$('walk-time').value; $('walk-val').textContent = walkTime + 's'; };
+$('run-time').oninput = () => { runTime = +$('run-time').value; $('run-val').textContent = runTime + 's'; };
+$('rounds').oninput = () => { totalRounds = +$('rounds').value; $('rounds-val').textContent = totalRounds; $('round-info').textContent = 'Runda 0 / ' + totalRounds; };
+$('music-vol').oninput = () => { const v = +$('music-vol').value; $('music-vol-val').textContent = v + '%'; $('music-player').volume = v / 100; };
+$('music-player').volume = 0.4;
+
+function loadMusic(input) {
+  const file = input.files[0]; if (!file) return;
+  $('music-player').src = URL.createObjectURL(file);
+  $('music-label').textContent = file.name;
+  input.value = '';
 }
 
-function loadVoices(){
-  voices=window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith('pl'));
-  const sel=$('voice-select');
-  if(!voices.length){sel.innerHTML='<option>Brak polskich głosów</option>';return;}
-  sel.innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');
+function loadVoices() {
+  voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('pl'));
+  const sel = $('voice-select');
+  if (!voices.length) { sel.innerHTML = '<option>Brak polskich głosów</option>'; return; }
+  sel.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
 }
 loadVoices();
-window.speechSynthesis.onvoiceschanged=loadVoices;
+window.speechSynthesis.onvoiceschanged = loadVoices;
 
-document.addEventListener('touchstart',()=>{getCtx();},{once:true});
+// Unlock AudioContext on first touch (iOS requirement)
+document.addEventListener('touchstart', () => { getCtx(); }, { once: true });
 </script>
 </body>
 </html>
