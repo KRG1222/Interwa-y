@@ -10,67 +10,52 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
-
 .app { max-width: 420px; margin: 0 auto; padding: 1rem; padding-bottom: 2rem; }
-
 .header { text-align: center; padding: 1.5rem 0 1rem; }
-.header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+.header h1 { font-size: 22px; font-weight: 600; }
 .header p { font-size: 14px; color: #666; margin-top: 4px; }
-
 .card { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
 .card-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
-
 .interval-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.interval-label { font-size: 14px; color: #1a1a1a; min-width: 85px; }
+.interval-label { font-size: 14px; min-width: 85px; }
 .interval-input { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: #e0e0e0; border-radius: 99px; outline: none; }
-.interval-input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #1a1a1a; cursor: pointer; }
-.interval-val { font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; color: #1a1a1a; }
-
-select { width: 100%; padding: 8px 10px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; background: white; color: #1a1a1a; outline: none; margin-bottom: 8px; }
-input[type="text"] { width: 100%; padding: 8px 10px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; color: #1a1a1a; outline: none; margin-bottom: 6px; }
-input[type="checkbox"] { width: 16px; height: 16px; }
-
-button { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.2); background: white; color: #1a1a1a; }
+.interval-input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; cursor: pointer; }
+.interval-val { font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; }
+select, input[type="text"] { width: 100%; padding: 8px 10px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; background: white; color: #1a1a1a; outline: none; margin-bottom: 8px; -webkit-appearance: none; }
+input[type="checkbox"] { width: 18px; height: 18px; }
+button { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.2); background: white; color: #1a1a1a; -webkit-tap-highlight-color: transparent; }
 button:active { opacity: 0.7; }
-
 .tts-test-row { display: flex; gap: 8px; }
 .tts-test-row input { flex: 1; margin-bottom: 0; }
-
 .timer-display { text-align: center; padding: 1.5rem 0; }
 .phase-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
 .phase-walk { color: #0F6E56; }
 .phase-run { color: #993C1D; }
 .phase-ready { color: #888; }
-.time-big { font-size: 72px; font-weight: 300; color: #1a1a1a; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+.time-big { font-size: 72px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
 .round-info { font-size: 13px; color: #888; margin-top: 8px; }
-
 .progress-bar { height: 8px; background: #e8e8e8; border-radius: 99px; overflow: hidden; margin: 12px 0; }
 .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s linear; }
 .fill-walk { background: #1D9E75; }
 .fill-run { background: #D85A30; }
-
 .controls { display: flex; gap: 10px; justify-content: center; margin-top: 1rem; }
 .btn-main { padding: 14px 36px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; }
 .btn-start { background: #1a1a1a; color: white; }
 .btn-stop { background: #D85A30; color: white; }
 .btn-reset { background: #e8e8e8; color: #1a1a1a; padding: 14px 20px; }
-
 .upload-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .upload-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px 12px; background: #f5f5f0; border-radius: 10px; }
 .upload-type { font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; }
 .type-walk { background: #E1F5EE; color: #0F6E56; }
 .type-run { background: #FAECE7; color: #993C1D; }
 .type-warn { background: #E6F1FB; color: #185FA5; }
-
-.upload-actions { display: flex; gap: 6px; }
 .section-sub { font-size: 12px; color: #888; margin-bottom: 8px; }
-
 .announce-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.announce-toggle label { font-size: 14px; color: #1a1a1a; }
-
+.announce-toggle label { font-size: 14px; }
 .music-row { display: flex; gap: 8px; align-items: center; }
 .music-label { font-size: 13px; color: #888; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
+.bg-hint { background: #FFF8E7; border: 0.5px solid rgba(186,117,23,0.3); border-radius: 12px; padding: 10px 14px; font-size: 12px; color: #854F0B; line-height: 1.6; margin-bottom: 1rem; }
+.bg-hint strong { color: #633806; }
 .ios-hint { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 14px 16px; font-size: 12px; color: #888; line-height: 1.7; margin-top: 0.5rem; }
 .ios-hint strong { color: #1a1a1a; font-weight: 600; }
 .ios-hint .step { display: flex; gap: 8px; margin-top: 6px; }
@@ -82,6 +67,11 @@ button:active { opacity: 0.7; }
   <div class="header">
     <h1>Trener interwałowy</h1>
     <p>Chodzenie / Bieganie</p>
+  </div>
+
+  <div class="bg-hint">
+    <strong>Dźwięki przy zablokowanym ekranie:</strong><br>
+    Po kliknięciu Start odczekaj ~3 sekundy zanim zablokujesz ekran. Potem możesz blokować swobodnie — dźwięki będą nadal działać przez słuchawki.
   </div>
 
   <div class="card">
@@ -111,7 +101,7 @@ button:active { opacity: 0.7; }
     </div>
     <select id="voice-select"><option>Ładowanie głosów...</option></select>
     <div class="tts-test-row" style="margin-bottom:12px;">
-      <input type="text" id="tts-test-text" value="Zacznij biegać!">
+      <input type="text" id="tts-test-text" value="Zacznij biegać!" style="margin-bottom:0;">
       <button onclick="testTTS()">Przetestuj</button>
     </div>
     <div class="section-sub">Własne komunikaty (opcjonalne):</div>
@@ -174,28 +164,143 @@ button:active { opacity: 0.7; }
 
 <script>
 let walkTime=60, runTime=30, totalRounds=8;
-let currentPhase='idle', currentRound=0, timeLeft=0, totalPhaseTime=0;
-let timer=null, warned=false;
+let currentRound=0;
 let voices=[];
-let audioFiles={walk:null, run:null, warn:null};
+let audioFiles={walk:null,run:null,warn:null};
+let audioBuffers={walk:null,run:null,warn:null};
+let actx=null, silentSource=null;
+let scheduledIds=[];
+let workoutStartTime=0;
+let pausedAt=0;
+let isRunning=false, isPaused=false;
+let timeline=[];
+let rafId=null;
 
-const $ = id => document.getElementById(id);
-const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const $=id=>document.getElementById(id);
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 
-$('walk-time').oninput = () => { walkTime=+$('walk-time').value; $('walk-val').textContent=walkTime+'s'; };
-$('run-time').oninput = () => { runTime=+$('run-time').value; $('run-val').textContent=runTime+'s'; };
-$('rounds').oninput = () => { totalRounds=+$('rounds').value; $('rounds-val').textContent=totalRounds; $('round-info').textContent='Runda 0 / '+totalRounds; };
-$('music-vol').oninput = () => { let v=+$('music-vol').value; $('music-vol-val').textContent=v+'%'; $('music-player').volume=v/100; };
-$('music-player').volume=0.4;
-
-function loadVoices() {
-  voices=window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith('pl'));
-  const sel=$('voice-select');
-  if(!voices.length){sel.innerHTML='<option>Brak polskich głosów</option>';return;}
-  sel.innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');
+function getCtx(){
+  if(!actx) actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(actx.state==='suspended') actx.resume();
+  return actx;
 }
-loadVoices();
-window.speechSynthesis.onvoiceschanged=loadVoices;
+
+function startKeepAlive(){
+  if(silentSource) return;
+  const ctx=getCtx();
+  const osc=ctx.createOscillator();
+  const g=ctx.createGain(); g.gain.value=0.00001;
+  osc.connect(g); g.connect(ctx.destination); osc.start();
+  silentSource=osc;
+}
+
+function stopKeepAlive(){
+  if(silentSource){try{silentSource.stop();}catch(e){} silentSource=null;}
+}
+
+async function loadBuffer(url){
+  const ctx=getCtx();
+  const res=await fetch(url);
+  const arr=await res.arrayBuffer();
+  return await ctx.decodeAudioData(arr);
+}
+
+async function addAudioFile(input){
+  const file=input.files[0]; if(!file)return;
+  const type=$('upload-type').value;
+  const url=URL.createObjectURL(file);
+  audioFiles[type]=url;
+  try{audioBuffers[type]=await loadBuffer(url);}catch(e){console.warn(e);}
+  renderUploadList(); input.value='';
+}
+
+function removeAudio(type){audioFiles[type]=null;audioBuffers[type]=null;renderUploadList();}
+
+function renderUploadList(){
+  const labels={walk:'Chodzenie',run:'Bieganie',warn:'Ostrzeżenie'};
+  const cls={walk:'type-walk',run:'type-run',warn:'type-warn'};
+  $('upload-list').innerHTML=Object.entries(audioFiles).filter(([,v])=>v).map(([t])=>`
+    <div class="upload-item">
+      <span class="upload-type ${cls[t]}">${labels[t]}</span>
+      <span style="color:#888;font-size:12px;">Wgrano</span>
+      <button onclick="removeAudio('${t}')" style="font-size:11px;padding:4px 8px;">Usuń</button>
+    </div>`).join('');
+}
+
+function buildTimeline(){
+  timeline=[];
+  let t=0;
+  for(let r=1;r<=totalRounds;r++){
+    timeline.push({time:t,type:'walk',round:r});
+    timeline.push({time:t+walkTime-5,type:'warn'});
+    t+=walkTime;
+    timeline.push({time:t,type:'run',round:r});
+    timeline.push({time:t+runTime-5,type:'warn'});
+    t+=runTime;
+  }
+  timeline.push({time:t,type:'end'});
+  return t;
+}
+
+function scheduleAll(){
+  cancelAll();
+  const ctx=getCtx();
+  const now=ctx.currentTime;
+  timeline.forEach(ev=>{
+    const when=workoutStartTime+ev.time;
+    if(when<=now) return;
+    const delay=(when-now)*1000;
+    const id=setTimeout(()=>handleEvent(ev),delay);
+    scheduledIds.push(id);
+  });
+}
+
+function cancelAll(){
+  scheduledIds.forEach(id=>clearTimeout(id));
+  scheduledIds=[];
+}
+
+function handleEvent(ev){
+  if(!isRunning||isPaused) return;
+  if(ev.type==='walk'){currentRound=ev.round; setPhase('walk'); announce('walk');}
+  else if(ev.type==='run'){setPhase('run'); announce('run');}
+  else if(ev.type==='warn'){announce('warn');}
+  else if(ev.type==='end'){endWorkout();}
+}
+
+function startTicker(){
+  cancelAnimationFrame(rafId);
+  function tick(){
+    if(!isRunning||isPaused){return;}
+    const ctx=getCtx();
+    const elapsed=ctx.currentTime-workoutStartTime;
+    let t=0;
+    let found=false;
+    for(let r=1;r<=totalRounds;r++){
+      if(elapsed>=t&&elapsed<t+walkTime){
+        const tl=Math.max(0,Math.ceil(walkTime-(elapsed-t)));
+        updateDisplay('walk',tl,walkTime,r);
+        found=true; break;
+      }
+      t+=walkTime;
+      if(elapsed>=t&&elapsed<t+runTime){
+        const tl=Math.max(0,Math.ceil(runTime-(elapsed-t)));
+        updateDisplay('run',tl,runTime,r);
+        found=true; break;
+      }
+      t+=runTime;
+    }
+    if(found) rafId=requestAnimationFrame(tick);
+  }
+  rafId=requestAnimationFrame(tick);
+}
+
+function updateDisplay(phase,tl,total,round){
+  $('time-display').textContent=fmt(tl);
+  $('progress-fill').style.width=(tl/total*100)+'%';
+  $('progress-fill').className='progress-fill '+(phase==='walk'?'fill-walk':'fill-run');
+  $('round-info').textContent='Runda '+round+' / '+totalRounds;
+}
 
 function speak(text){
   if(!$('tts-enabled').checked)return;
@@ -207,84 +312,86 @@ function speak(text){
   window.speechSynthesis.speak(u);
 }
 
-function testTTS(){speak($('tts-test-text').value||'Zacznij biegać!');}
-
-function playAudio(type){
-  if(!audioFiles[type])return false;
-  new Audio(audioFiles[type]).play().catch(()=>{});
+function playBuffer(type){
+  if(!audioBuffers[type])return false;
+  const ctx=getCtx();
+  const src=ctx.createBufferSource();
+  src.buffer=audioBuffers[type];
+  src.connect(ctx.destination);
+  src.start();
   return true;
 }
 
 function announce(type){
-  if(type==='walk'){if(!playAudio('walk'))speak($('msg-walk').value||'Zacznij chodzić');}
-  else if(type==='run'){if(!playAudio('run'))speak($('msg-run').value||'Zacznij biegać');}
-  else if(type==='warn'){if(!playAudio('warn'))speak($('msg-warn').value||'Jeszcze pięć sekund');}
+  if(type==='walk'){if(!playBuffer('walk'))speak($('msg-walk').value||'Zacznij chodzić');}
+  else if(type==='run'){if(!playBuffer('run'))speak($('msg-run').value||'Zacznij biegać');}
+  else if(type==='warn'){if(!playBuffer('warn'))speak($('msg-warn').value||'Jeszcze pięć sekund');}
 }
 
-function addAudioFile(input){
-  const file=input.files[0]; if(!file)return;
-  const type=$('upload-type').value;
-  audioFiles[type]=URL.createObjectURL(file);
-  renderUploadList(); input.value='';
-}
+function testTTS(){speak($('tts-test-text').value||'Zacznij biegać!');}
 
-function renderUploadList(){
-  const labels={walk:'Chodzenie',run:'Bieganie',warn:'Ostrzeżenie'};
-  const cls={walk:'type-walk',run:'type-run',warn:'type-warn'};
-  $('upload-list').innerHTML=Object.entries(audioFiles).filter(([,v])=>v).map(([type])=>`
-    <div class="upload-item">
-      <span class="upload-type ${cls[type]}">${labels[type]}</span>
-      <span style="color:#888; font-size:12px;">Plik wgrany</span>
-      <button onclick="removeAudio('${type}')" style="font-size:11px; padding:4px 8px;">Usuń</button>
-    </div>`).join('');
-}
-
-function removeAudio(type){audioFiles[type]=null;renderUploadList();}
-
-function loadMusic(input){
-  const file=input.files[0]; if(!file)return;
-  $('music-player').src=URL.createObjectURL(file);
-  $('music-label').textContent=file.name;
-  input.value='';
+function setPhase(phase){
+  const lbl=$('phase-label');
+  if(phase==='walk'){lbl.className='phase-label phase-walk';lbl.textContent='CHODZENIE';}
+  else if(phase==='run'){lbl.className='phase-label phase-run';lbl.textContent='BIEGANIE';}
+  else{lbl.className='phase-label phase-ready';lbl.textContent=phase;}
 }
 
 function startWorkout(){
-  if(currentPhase==='idle'||currentPhase==='done'){
-    currentRound=0;
-    startNextPhase('walk');
-    const mp=$('music-player');
-    if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
-    $('btn-start').textContent='Pauza';
-    $('btn-start').className='btn-main btn-stop';
-    $('btn-start').onclick=pauseWorkout;
-  }
+  const ctx=getCtx();
+  startKeepAlive();
+  isRunning=true; isPaused=false;
+  workoutStartTime=ctx.currentTime;
+  buildTimeline();
+  scheduleAll();
+  startTicker();
+  setPhase('walk');
+  currentRound=1;
+  $('round-info').textContent='Runda 1 / '+totalRounds;
+  announce('walk');
+  const mp=$('music-player');
+  if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
+  $('btn-start').textContent='Pauza';
+  $('btn-start').className='btn-main btn-stop';
+  $('btn-start').onclick=pauseWorkout;
 }
 
 function pauseWorkout(){
-  clearInterval(timer);timer=null;
+  if(!isRunning)return;
+  isPaused=true;
+  pausedAt=getCtx().currentTime;
+  cancelAll();
+  cancelAnimationFrame(rafId);
+  window.speechSynthesis.cancel();
   $('music-player').pause();
-  currentPhase='paused';
   $('btn-start').textContent='Wznów';
   $('btn-start').className='btn-main btn-start';
   $('btn-start').onclick=resumeWorkout;
 }
 
 function resumeWorkout(){
+  if(!isPaused)return;
+  const ctx=getCtx();
+  const pauseDur=ctx.currentTime-pausedAt;
+  workoutStartTime+=pauseDur;
+  isPaused=false;
+  scheduleAll();
+  startTicker();
   const mp=$('music-player');
   if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
   $('btn-start').textContent='Pauza';
   $('btn-start').className='btn-main btn-stop';
   $('btn-start').onclick=pauseWorkout;
-  runTimer();
 }
 
 function resetWorkout(){
-  clearInterval(timer);timer=null;
-  currentPhase='idle';currentRound=0;
+  isRunning=false; isPaused=false;
+  cancelAll();
+  cancelAnimationFrame(rafId);
+  stopKeepAlive();
   window.speechSynthesis.cancel();
   const mp=$('music-player'); mp.pause(); mp.currentTime=0;
-  $('phase-label').className='phase-label phase-ready';
-  $('phase-label').textContent='GOTOWY';
+  setPhase('GOTOWY');
   $('time-display').textContent='00:00';
   $('progress-fill').style.width='100%';
   $('progress-fill').className='progress-fill fill-walk';
@@ -294,50 +401,12 @@ function resetWorkout(){
   $('btn-start').onclick=startWorkout;
 }
 
-function startNextPhase(phase){
-  if(phase==='walk'){
-    currentRound++;
-    if(currentRound>totalRounds){endWorkout();return;}
-    currentPhase='walk'; timeLeft=walkTime; totalPhaseTime=walkTime;
-    $('phase-label').className='phase-label phase-walk';
-    $('phase-label').textContent='CHODZENIE';
-    $('progress-fill').className='progress-fill fill-walk';
-    announce('walk');
-  } else {
-    currentPhase='run'; timeLeft=runTime; totalPhaseTime=runTime;
-    $('phase-label').className='phase-label phase-run';
-    $('phase-label').textContent='BIEGANIE';
-    $('progress-fill').className='progress-fill fill-run';
-    announce('run');
-  }
-  $('round-info').textContent='Runda '+currentRound+' / '+totalRounds;
-  updateDisplay(); runTimer();
-}
-
-function runTimer(){
-  clearInterval(timer); warned=false;
-  timer=setInterval(()=>{
-    timeLeft--;
-    if(timeLeft===5&&!warned){warned=true;announce('warn');}
-    updateDisplay();
-    if(timeLeft<=0){
-      clearInterval(timer);
-      if(currentPhase==='walk')startNextPhase('run');
-      else startNextPhase('walk');
-    }
-  },1000);
-}
-
-function updateDisplay(){
-  $('time-display').textContent=fmt(timeLeft);
-  $('progress-fill').style.width=(timeLeft/totalPhaseTime*100)+'%';
-}
-
 function endWorkout(){
-  currentPhase='done';
+  isRunning=false;
+  cancelAnimationFrame(rafId);
+  stopKeepAlive();
   $('music-player').pause();
-  $('phase-label').className='phase-label phase-ready';
-  $('phase-label').textContent='KONIEC!';
+  setPhase('KONIEC!');
   $('time-display').textContent='00:00';
   $('progress-fill').style.width='0%';
   $('round-info').textContent='Trening ukończony!';
@@ -346,6 +415,30 @@ function endWorkout(){
   $('btn-start').className='btn-main btn-start';
   $('btn-start').onclick=startWorkout;
 }
+
+$('walk-time').oninput=()=>{walkTime=+$('walk-time').value;$('walk-val').textContent=walkTime+'s';};
+$('run-time').oninput=()=>{runTime=+$('run-time').value;$('run-val').textContent=runTime+'s';};
+$('rounds').oninput=()=>{totalRounds=+$('rounds').value;$('rounds-val').textContent=totalRounds;$('round-info').textContent='Runda 0 / '+totalRounds;};
+$('music-vol').oninput=()=>{let v=+$('music-vol').value;$('music-vol-val').textContent=v+'%';$('music-player').volume=v/100;};
+$('music-player').volume=0.4;
+
+function loadMusic(input){
+  const file=input.files[0];if(!file)return;
+  $('music-player').src=URL.createObjectURL(file);
+  $('music-label').textContent=file.name;
+  input.value='';
+}
+
+function loadVoices(){
+  voices=window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith('pl'));
+  const sel=$('voice-select');
+  if(!voices.length){sel.innerHTML='<option>Brak polskich głosów</option>';return;}
+  sel.innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');
+}
+loadVoices();
+window.speechSynthesis.onvoiceschanged=loadVoices;
+
+document.addEventListener('touchstart',()=>{getCtx();},{once:true});
 </script>
 </body>
 </html>
