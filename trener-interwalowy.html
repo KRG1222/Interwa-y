@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trener">
+<title>Trener interwałowy</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+
+.app { max-width: 420px; margin: 0 auto; padding: 1rem; padding-bottom: 2rem; }
+
+.header { text-align: center; padding: 1.5rem 0 1rem; }
+.header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+.header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+.card { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+.interval-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.interval-label { font-size: 14px; color: #1a1a1a; min-width: 85px; }
+.interval-input { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: #e0e0e0; border-radius: 99px; outline: none; }
+.interval-input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #1a1a1a; cursor: pointer; }
+.interval-val { font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; color: #1a1a1a; }
+
+select { width: 100%; padding: 8px 10px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; background: white; color: #1a1a1a; outline: none; margin-bottom: 8px; }
+input[type="text"] { width: 100%; padding: 8px 10px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; color: #1a1a1a; outline: none; margin-bottom: 6px; }
+input[type="checkbox"] { width: 16px; height: 16px; }
+
+button { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.2); background: white; color: #1a1a1a; }
+button:active { opacity: 0.7; }
+
+.tts-test-row { display: flex; gap: 8px; }
+.tts-test-row input { flex: 1; margin-bottom: 0; }
+
+.timer-display { text-align: center; padding: 1.5rem 0; }
+.phase-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
+.phase-walk { color: #0F6E56; }
+.phase-run { color: #993C1D; }
+.phase-ready { color: #888; }
+.time-big { font-size: 72px; font-weight: 300; color: #1a1a1a; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+.round-info { font-size: 13px; color: #888; margin-top: 8px; }
+
+.progress-bar { height: 8px; background: #e8e8e8; border-radius: 99px; overflow: hidden; margin: 12px 0; }
+.progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s linear; }
+.fill-walk { background: #1D9E75; }
+.fill-run { background: #D85A30; }
+
+.controls { display: flex; gap: 10px; justify-content: center; margin-top: 1rem; }
+.btn-main { padding: 14px 36px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; }
+.btn-start { background: #1a1a1a; color: white; }
+.btn-stop { background: #D85A30; color: white; }
+.btn-reset { background: #e8e8e8; color: #1a1a1a; padding: 14px 20px; }
+
+.upload-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.upload-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px 12px; background: #f5f5f0; border-radius: 10px; }
+.upload-type { font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; }
+.type-walk { background: #E1F5EE; color: #0F6E56; }
+.type-run { background: #FAECE7; color: #993C1D; }
+.type-warn { background: #E6F1FB; color: #185FA5; }
+
+.upload-actions { display: flex; gap: 6px; }
+.section-sub { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+.announce-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.announce-toggle label { font-size: 14px; color: #1a1a1a; }
+
+.music-row { display: flex; gap: 8px; align-items: center; }
+.music-label { font-size: 13px; color: #888; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ios-hint { background: white; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 14px 16px; font-size: 12px; color: #888; line-height: 1.7; margin-top: 0.5rem; }
+.ios-hint strong { color: #1a1a1a; font-weight: 600; }
+.ios-hint .step { display: flex; gap: 8px; margin-top: 6px; }
+.ios-hint .step-num { background: #1a1a1a; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Trener interwałowy</h1>
+    <p>Chodzenie / Bieganie</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Ustawienia interwałów</div>
+    <div class="interval-row">
+      <span class="interval-label">Chodzenie</span>
+      <input type="range" class="interval-input" id="walk-time" min="10" max="300" step="5" value="60">
+      <span class="interval-val" id="walk-val">60s</span>
+    </div>
+    <div class="interval-row">
+      <span class="interval-label">Bieganie</span>
+      <input type="range" class="interval-input" id="run-time" min="10" max="300" step="5" value="30">
+      <span class="interval-val" id="run-val">30s</span>
+    </div>
+    <div class="interval-row" style="margin-bottom:0">
+      <span class="interval-label">Rundy</span>
+      <input type="range" class="interval-input" id="rounds" min="1" max="30" step="1" value="8">
+      <span class="interval-val" id="rounds-val">8</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mowa (TTS po polsku)</div>
+    <div class="announce-toggle">
+      <input type="checkbox" id="tts-enabled" checked>
+      <label for="tts-enabled">Włącz komunikaty głosowe</label>
+    </div>
+    <select id="voice-select"><option>Ładowanie głosów...</option></select>
+    <div class="tts-test-row" style="margin-bottom:12px;">
+      <input type="text" id="tts-test-text" value="Zacznij biegać!">
+      <button onclick="testTTS()">Przetestuj</button>
+    </div>
+    <div class="section-sub">Własne komunikaty (opcjonalne):</div>
+    <input type="text" id="msg-walk" placeholder='Np. "Spokojnie, chodź"'>
+    <input type="text" id="msg-run" placeholder='Np. "Biegnij!"'>
+    <input type="text" id="msg-warn" placeholder='Np. "Jeszcze 5 sekund!"' style="margin-bottom:0;">
+  </div>
+
+  <div class="card">
+    <div class="card-title">Własne nagrania głosowe</div>
+    <div class="section-sub">Wgraj pliki MP3/WAV dla konkretnych faz:</div>
+    <div class="upload-list" id="upload-list"></div>
+    <div style="display:flex; gap:6px;">
+      <select id="upload-type" style="flex:1; margin-bottom:0;">
+        <option value="walk">Na chodzenie</option>
+        <option value="run">Na bieganie</option>
+        <option value="warn">Ostrzeżenie (5s)</option>
+      </select>
+      <button onclick="document.getElementById('file-input').click()">Dodaj plik</button>
+    </div>
+    <input type="file" id="file-input" accept="audio/*" style="display:none" onchange="addAudioFile(this)">
+  </div>
+
+  <div class="card">
+    <div class="card-title">Muzyka w tle</div>
+    <div class="music-row">
+      <input type="file" id="music-input" accept="audio/*" style="display:none" onchange="loadMusic(this)">
+      <button onclick="document.getElementById('music-input').click()">Wgraj muzykę</button>
+      <span class="music-label" id="music-label">Brak pliku</span>
+    </div>
+    <div class="interval-row" style="margin-top:12px; margin-bottom:0;">
+      <span class="interval-label" style="font-size:13px;">Głośność</span>
+      <input type="range" class="interval-input" id="music-vol" min="0" max="100" value="40">
+      <span class="interval-val" id="music-vol-val">40%</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="timer-display">
+      <div class="phase-label phase-ready" id="phase-label">GOTOWY</div>
+      <div class="time-big" id="time-display">00:00</div>
+      <div class="progress-bar"><div class="progress-fill fill-walk" id="progress-fill" style="width:100%"></div></div>
+      <div class="round-info" id="round-info">Runda 0 / 8</div>
+    </div>
+    <div class="controls">
+      <button class="btn-main btn-start" id="btn-start" onclick="startWorkout()">Start</button>
+      <button class="btn-main btn-reset" onclick="resetWorkout()">Reset</button>
+    </div>
+  </div>
+
+  <div class="ios-hint">
+    <strong>Jak dodać do ekranu iPhone'a:</strong>
+    <div class="step"><div class="step-num">1</div><span>Otwórz tę stronę w Safari</span></div>
+    <div class="step"><div class="step-num">2</div><span>Kliknij ikonę Udostępnij (kwadrat ze strzałką w górę)</span></div>
+    <div class="step"><div class="step-num">3</div><span>Wybierz "Dodaj do ekranu głównego"</span></div>
+  </div>
+</div>
+
+<audio id="music-player" loop></audio>
+
+<script>
+let walkTime=60, runTime=30, totalRounds=8;
+let currentPhase='idle', currentRound=0, timeLeft=0, totalPhaseTime=0;
+let timer=null, warned=false;
+let voices=[];
+let audioFiles={walk:null, run:null, warn:null};
+
+const $ = id => document.getElementById(id);
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+
+$('walk-time').oninput = () => { walkTime=+$('walk-time').value; $('walk-val').textContent=walkTime+'s'; };
+$('run-time').oninput = () => { runTime=+$('run-time').value; $('run-val').textContent=runTime+'s'; };
+$('rounds').oninput = () => { totalRounds=+$('rounds').value; $('rounds-val').textContent=totalRounds; $('round-info').textContent='Runda 0 / '+totalRounds; };
+$('music-vol').oninput = () => { let v=+$('music-vol').value; $('music-vol-val').textContent=v+'%'; $('music-player').volume=v/100; };
+$('music-player').volume=0.4;
+
+function loadVoices() {
+  voices=window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith('pl'));
+  const sel=$('voice-select');
+  if(!voices.length){sel.innerHTML='<option>Brak polskich głosów</option>';return;}
+  sel.innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');
+}
+loadVoices();
+window.speechSynthesis.onvoiceschanged=loadVoices;
+
+function speak(text){
+  if(!$('tts-enabled').checked)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='pl-PL';
+  const idx=+$('voice-select').value;
+  if(voices[idx])u.voice=voices[idx];
+  window.speechSynthesis.speak(u);
+}
+
+function testTTS(){speak($('tts-test-text').value||'Zacznij biegać!');}
+
+function playAudio(type){
+  if(!audioFiles[type])return false;
+  new Audio(audioFiles[type]).play().catch(()=>{});
+  return true;
+}
+
+function announce(type){
+  if(type==='walk'){if(!playAudio('walk'))speak($('msg-walk').value||'Zacznij chodzić');}
+  else if(type==='run'){if(!playAudio('run'))speak($('msg-run').value||'Zacznij biegać');}
+  else if(type==='warn'){if(!playAudio('warn'))speak($('msg-warn').value||'Jeszcze pięć sekund');}
+}
+
+function addAudioFile(input){
+  const file=input.files[0]; if(!file)return;
+  const type=$('upload-type').value;
+  audioFiles[type]=URL.createObjectURL(file);
+  renderUploadList(); input.value='';
+}
+
+function renderUploadList(){
+  const labels={walk:'Chodzenie',run:'Bieganie',warn:'Ostrzeżenie'};
+  const cls={walk:'type-walk',run:'type-run',warn:'type-warn'};
+  $('upload-list').innerHTML=Object.entries(audioFiles).filter(([,v])=>v).map(([type])=>`
+    <div class="upload-item">
+      <span class="upload-type ${cls[type]}">${labels[type]}</span>
+      <span style="color:#888; font-size:12px;">Plik wgrany</span>
+      <button onclick="removeAudio('${type}')" style="font-size:11px; padding:4px 8px;">Usuń</button>
+    </div>`).join('');
+}
+
+function removeAudio(type){audioFiles[type]=null;renderUploadList();}
+
+function loadMusic(input){
+  const file=input.files[0]; if(!file)return;
+  $('music-player').src=URL.createObjectURL(file);
+  $('music-label').textContent=file.name;
+  input.value='';
+}
+
+function startWorkout(){
+  if(currentPhase==='idle'||currentPhase==='done'){
+    currentRound=0;
+    startNextPhase('walk');
+    const mp=$('music-player');
+    if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
+    $('btn-start').textContent='Pauza';
+    $('btn-start').className='btn-main btn-stop';
+    $('btn-start').onclick=pauseWorkout;
+  }
+}
+
+function pauseWorkout(){
+  clearInterval(timer);timer=null;
+  $('music-player').pause();
+  currentPhase='paused';
+  $('btn-start').textContent='Wznów';
+  $('btn-start').className='btn-main btn-start';
+  $('btn-start').onclick=resumeWorkout;
+}
+
+function resumeWorkout(){
+  const mp=$('music-player');
+  if(mp.src&&mp.src!==window.location.href)mp.play().catch(()=>{});
+  $('btn-start').textContent='Pauza';
+  $('btn-start').className='btn-main btn-stop';
+  $('btn-start').onclick=pauseWorkout;
+  runTimer();
+}
+
+function resetWorkout(){
+  clearInterval(timer);timer=null;
+  currentPhase='idle';currentRound=0;
+  window.speechSynthesis.cancel();
+  const mp=$('music-player'); mp.pause(); mp.currentTime=0;
+  $('phase-label').className='phase-label phase-ready';
+  $('phase-label').textContent='GOTOWY';
+  $('time-display').textContent='00:00';
+  $('progress-fill').style.width='100%';
+  $('progress-fill').className='progress-fill fill-walk';
+  $('round-info').textContent='Runda 0 / '+totalRounds;
+  $('btn-start').textContent='Start';
+  $('btn-start').className='btn-main btn-start';
+  $('btn-start').onclick=startWorkout;
+}
+
+function startNextPhase(phase){
+  if(phase==='walk'){
+    currentRound++;
+    if(currentRound>totalRounds){endWorkout();return;}
+    currentPhase='walk'; timeLeft=walkTime; totalPhaseTime=walkTime;
+    $('phase-label').className='phase-label phase-walk';
+    $('phase-label').textContent='CHODZENIE';
+    $('progress-fill').className='progress-fill fill-walk';
+    announce('walk');
+  } else {
+    currentPhase='run'; timeLeft=runTime; totalPhaseTime=runTime;
+    $('phase-label').className='phase-label phase-run';
+    $('phase-label').textContent='BIEGANIE';
+    $('progress-fill').className='progress-fill fill-run';
+    announce('run');
+  }
+  $('round-info').textContent='Runda '+currentRound+' / '+totalRounds;
+  updateDisplay(); runTimer();
+}
+
+function runTimer(){
+  clearInterval(timer); warned=false;
+  timer=setInterval(()=>{
+    timeLeft--;
+    if(timeLeft===5&&!warned){warned=true;announce('warn');}
+    updateDisplay();
+    if(timeLeft<=0){
+      clearInterval(timer);
+      if(currentPhase==='walk')startNextPhase('run');
+      else startNextPhase('walk');
+    }
+  },1000);
+}
+
+function updateDisplay(){
+  $('time-display').textContent=fmt(timeLeft);
+  $('progress-fill').style.width=(timeLeft/totalPhaseTime*100)+'%';
+}
+
+function endWorkout(){
+  currentPhase='done';
+  $('music-player').pause();
+  $('phase-label').className='phase-label phase-ready';
+  $('phase-label').textContent='KONIEC!';
+  $('time-display').textContent='00:00';
+  $('progress-fill').style.width='0%';
+  $('round-info').textContent='Trening ukończony!';
+  speak('Trening ukończony. Świetna robota!');
+  $('btn-start').textContent='Start';
+  $('btn-start').className='btn-main btn-start';
+  $('btn-start').onclick=startWorkout;
+}
+</script>
+</body>
+</html>
